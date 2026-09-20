@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loan Management Console — L&T Finance Capstone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#10161C;
+    --panel:#161E27;
+    --panel-2:#1C2530;
+    --border:#263140;
+    --text:#E9E6DD;
+    --text-muted:#8D97A3;
+    --accent:#C89B3C;
+    --accent-soft:rgba(200,155,60,.14);
+    --green:#4F9C6D;
+    --green-soft:rgba(79,156,109,.14);
+    --amber:#D0A030;
+    --amber-soft:rgba(208,160,48,.14);
+    --red:#C1554C;
+    --red-soft:rgba(193,85,76,.14);
+    --blue:#5A8FC0;
+    --blue-soft:rgba(90,143,192,.14);
+    --gray:#6B7580;
+    --gray-soft:rgba(107,117,128,.14);
+    --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    font-size:14px;
+    line-height:1.5;
+    min-height:100vh;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .num{font-family:'IBM Plex Mono',monospace;}
+
+  /* ---------- layout ---------- */
+  .app{display:flex;min-height:100vh;}
+
+  .sidebar{
+    width:230px;
+    flex-shrink:0;
+    background:var(--panel);
+    border-right:1px solid var(--border);
+    padding:28px 0;
+    display:flex;
+    flex-direction:column;
+  }
+  .brand{
+    padding:0 24px 24px 24px;
+    border-bottom:1px solid var(--border);
+    margin-bottom:8px;
+  }
+  .brand .mark{
+    font-family:'Fraunces',serif;
+    font-size:20px;
+    font-weight:600;
+    color:var(--accent);
+    line-height:1.15;
+  }
+  .brand .sub{
+    color:var(--text-muted);
+    font-size:11.5px;
+    margin-top:6px;
+  }
+  nav{padding:16px 12px;flex:1;}
+  nav button{
+    display:flex;
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    color:var(--text-muted);
+    font-family:inherit;
+    font-size:14px;
+    padding:9px 12px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    margin-bottom:2px;
+  }
+  nav button:hover{color:var(--text);background:var(--panel-2);}
+  nav button.active{color:var(--text);background:var(--accent-soft);border-left:2px solid var(--accent);padding-left:10px;}
+
+  .connection{
+    padding:16px 24px;
+    border-top:1px solid var(--border);
+    font-size:12px;
+    color:var(--text-muted);
+  }
+  .dot{
+    display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:var(--gray);margin-right:6px;
+  }
+  .dot.up{background:var(--green);box-shadow:0 0 0 3px var(--green-soft);}
+  .dot.down{background:var(--red);box-shadow:0 0 0 3px var(--red-soft);}
+  .connection input{
+    width:100%;
+    margin-top:8px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    padding:6px 8px;
+    border-radius:var(--radius);
+  }
+
+  main{flex:1;padding:36px 44px;max-width:1040px;}
+  .page-header{margin-bottom:28px;}
+  .page-header h2{font-size:26px;}
+  .page-header p{color:var(--text-muted);margin-top:6px;font-size:13.5px;}
+
+  section{display:none;}
+  section.active{display:block;}
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    margin-bottom:22px;
+  }
+  .panel-head{
+    padding:14px 18px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .panel-head h3{font-size:15px;}
+  .panel-body{padding:18px;}
+
+  /* form */
+  .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field.span2{grid-column:1/-1;}
+  .field label{font-size:12px;color:var(--text-muted);}
+  .field input,.field select{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:8px 10px;
+    border-radius:var(--radius);
+    font-family:inherit;
+    font-size:13.5px;
+  }
+  .field input:focus,.field select:focus{outline:1px solid var(--accent);border-color:var(--accent);}
+  .field .hint{font-size:11px;color:var(--text-muted);}
+
+  .btn{
+    background:var(--accent);
+    color:#1A1305;
+    border:none;
+    padding:9px 16px;
+    border-radius:var(--radius);
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:500;
+    cursor:pointer;
+  }
+  .btn:hover{filter:brightness(1.08);}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .btn.ghost{
+    background:none;
+    border:1px solid var(--border);
+    color:var(--text);
+  }
+  .btn.ghost:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-row{margin-top:16px;display:flex;gap:10px;align-items:center;}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;}
+  th{
+    text-align:left;
+    font-size:11px;
+    text-transform:none;
+    color:var(--text-muted);
+    font-weight:500;
+    padding:8px 10px;
+    border-bottom:1px solid var(--border);
+  }
+  td{
+    padding:10px 10px;
+    border-bottom:1px solid var(--border);
+    font-size:13.5px;
+  }
+  tr:last-child td{border-bottom:none;}
+  tr.clickable{cursor:pointer;}
+  tr.clickable:hover{background:var(--panel-2);}
+
+  .badge{
+    display:inline-block;
+    padding:3px 9px;
+    border-radius:12px;
+    font-size:11.5px;
+    font-weight:500;
+  }
+  .badge.PENDING{background:var(--amber-soft);color:var(--amber);}
+  .badge.UNDER_REVIEW{background:var(--blue-soft);color:var(--blue);}
+  .badge.APPROVED{background:var(--green-soft);color:var(--green);}
+  .badge.REJECTED{background:var(--red-soft);color:var(--red);}
+  .badge.DISBURSED{background:var(--blue-soft);color:var(--blue);}
+  .badge.CLOSED{background:var(--gray-soft);color:var(--gray);}
+
+  .empty{color:var(--text-muted);font-size:13px;padding:6px 0;}
+
+  /* live pipeline strip */
+  .pipeline{
+    display:flex;
+    align-items:center;
+    gap:0;
+    margin-top:4px;
+  }
+  .p-stage{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 14px;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    font-size:12.5px;
+    color:var(--text-muted);
+    background:var(--panel-2);
+  }
+  .p-stage.live{color:var(--text);border-color:var(--accent);}
+  .p-stage .lamp{width:7px;height:7px;border-radius:50%;background:var(--gray);}
+  .p-stage.live .lamp{background:var(--accent);animation:pulse 1s infinite;}
+  .p-stage.done .lamp{background:var(--green);animation:none;}
+  .p-arrow{color:var(--text-muted);padding:0 8px;font-size:13px;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+  .stat-row{display:flex;gap:14px;margin-bottom:22px;}
+  .stat{
+    flex:1;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:16px 18px;
+  }
+  .stat .label{font-size:11.5px;color:var(--text-muted);}
+  .stat .value{font-family:'IBM Plex Mono',monospace;font-size:26px;margin-top:4px;}
+
+  .toast{
+    position:fixed;bottom:24px;right:24px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-left:3px solid var(--accent);
+    color:var(--text);
+    padding:12px 16px;
+    border-radius:var(--radius);
+    font-size:13px;
+    max-width:340px;
+    box-shadow:0 8px 24px rgba(0,0,0,.4);
+    opacity:0;
+    transform:translateY(8px);
+    transition:opacity .2s, transform .2s;
+    pointer-events:none;
+    z-index:50;
+  }
+  .toast.show{opacity:1;transform:translateY(0);}
+  .toast.err{border-left-color:var(--red);}
+  .toast.ok{border-left-color:var(--green);}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark">Ledger&nbsp;Console</div>
+      <div class="sub">Loan Management Microservice</div>
+    </div>
+    <nav>
+      <button data-section="overview" class="active">Overview</button>
+      <button data-section="customers">Customers</button>
+      <button data-section="loans">Loan Applications</button>
+      <button data-section="repayments">Repayment Schedule</button>
+    </nav>
+    <div class="connection">
+      <span class="dot" id="connDot"></span><span id="connText">checking connection…</span>
+      <input id="apiBase" value="http://localhost:8080" spellcheck="false">
+    </div>
+  </aside>
+
+  <main>
+
+    <!-- OVERVIEW -->
+    <section id="overview" class="active">
+      <div class="page-header">
+        <h2>Portfolio overview</h2>
+        <p>Live counts pulled straight from PostgreSQL through the REST API — nothing here is mocked.</p>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat"><div class="label">Customers on file</div><div class="value" id="statCustomers">—</div></div>
+        <div class="stat"><div class="label">Loan applications</div><div class="value" id="statLoans">—</div></div>
+        <div class="stat"><div class="label">Approved</div><div class="value" id="statApproved">—</div></div>
+        <div class="stat"><div class="label">Awaiting decision</div><div class="value" id="statPending">—</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>How the async credit check works</h3>
+        </div>
+        <div class="panel-body">
+          <p style="color:var(--text-muted);margin:0 0 14px 0;">
+            Submitting a loan below does not decide it synchronously. The API commits it to Postgres as
+            <span class="badge PENDING">PENDING</span>, publishes a Kafka event, and returns immediately.
+            A separate consumer picks the event up moments later and updates the status. Submit a loan from the
+            <strong style="color:var(--text);">Loan Applications</strong> tab to watch this happen in real time below.
+          </p>
+          <div class="pipeline" id="pipelineStrip">
+            <div class="p-stage" id="stage1"><span class="lamp"></span>Submitted to API</div>
+            <span class="p-arrow">→</span>
+            <div class="p-stage" id="stage2"><span class="lamp"></span>Kafka event published</div>
+            <span class="p-arrow">→</span>
+            <div class="p-stage" id="stage3"><span class="lamp"></span>Consumer processing</div>
+            <span class="p-arrow">→</span>
+            <div class="p-stage" id="stage4"><span class="lamp"></span>Decision recorded</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CUSTOMERS -->
+    <section id="customers">
+      <div class="page-header">
+        <h2>Customers</h2>
+        <p>Onboard a customer before submitting a loan application against them.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Onboard a customer</h3></div>
+        <div class="panel-body">
+          <div class="field-grid">
+            <div class="field"><label>Full name</label><input id="cFullName" placeholder="Aditi Sharma"></div>
+            <div class="field"><label>Email</label><input id="cEmail" placeholder="aditi@example.com"></div>
+            <div class="field"><label>Phone</label><input id="cPhone" placeholder="9876543210"><span class="hint">10 digits, starts 6–9</span></div>
+            <div class="field"><label>PAN number</label><input id="cPan" placeholder="ABCDE1234F" style="text-transform:uppercase"><span class="hint">5 letters, 4 digits, 1 letter</span></div>
+            <div class="field"><label>Date of birth</label><input id="cDob" type="date"></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn" onclick="createCustomer()">Create customer</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>All customers</h3>
+          <button class="btn ghost" onclick="loadCustomers()">Refresh</button>
+        </div>
+        <div class="panel-body">
+          <table>
+            <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>PAN</th></tr></thead>
+            <tbody id="customerTable"></tbody>
+          </table>
+          <div class="empty" id="customerEmpty" style="display:none;">No customers yet — create one above.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOANS -->
+    <section id="loans">
+      <div class="page-header">
+        <h2>Loan applications</h2>
+        <p>Submit against an existing customer ID, then watch the status change from PENDING as the Kafka consumer runs.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Submit a loan application</h3></div>
+        <div class="panel-body">
+          <div class="field-grid">
+            <div class="field"><label>Customer ID</label><input id="lCustomerId" type="number" placeholder="1"></div>
+            <div class="field">
+              <label>Loan type</label>
+              <select id="lLoanType">
+                <option value="PERSONAL">Personal</option>
+                <option value="TWO_WHEELER" selected>Two-Wheeler</option>
+                <option value="HOME">Home</option>
+                <option value="RURAL_BUSINESS">Rural Business</option>
+                <option value="FARM">Farm</option>
+                <option value="GOLD">Gold</option>
+                <option value="SME">SME</option>
+              </select>
+            </div>
+            <div class="field"><label>Principal amount (₹)</label><input id="lPrincipal" type="number" placeholder="85000"></div>
+            <div class="field"><label>Interest rate (annual %)</label><input id="lRate" type="number" step="0.01" placeholder="11.5"></div>
+            <div class="field"><label>Tenure (months)</label><input id="lTenure" type="number" placeholder="24"></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn" onclick="submitLoan()">Submit application</button>
+            <span class="empty" id="loanSubmitStatus"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>All loan applications</h3>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="statusFilter" onchange="loadLoans()" style="background:var(--panel-2);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:var(--radius);font-size:12.5px;">
+              <option value="">All statuses</option>
+              <option>PENDING</option><option>UNDER_REVIEW</option><option>APPROVED</option>
+              <option>REJECTED</option><option>DISBURSED</option><option>CLOSED</option>
+            </select>
+            <button class="btn ghost" onclick="loadLoans()">Refresh</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <table>
+            <thead><tr><th>ID</th><th>Customer</th><th>Type</th><th>Principal</th><th>Rate</th><th>Tenure</th><th>Status</th><th>Applied</th></tr></thead>
+            <tbody id="loanTable"></tbody>
+          </table>
+          <div class="empty" id="loanEmpty" style="display:none;">No loan applications yet.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPAYMENTS -->
+    <section id="repayments">
+      <div class="page-header">
+        <h2>Repayment schedule</h2>
+        <p>Look up the EMI amortization schedule generated for a loan application.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-body">
+          <div class="field-grid">
+            <div class="field"><label>Loan application ID</label><input id="rLoanId" type="number" placeholder="1"></div>
+          </div>
+          <div class="btn-row"><button class="btn" onclick="loadRepayments()">Load schedule</button></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Installments</h3></div>
+        <div class="panel-body">
+          <table>
+            <thead><tr><th>#</th><th>Due date</th><th>EMI</th><th>Principal</th><th>Interest</th><th>Paid</th></tr></thead>
+            <tbody id="repaymentTable"></tbody>
+          </table>
+          <div class="empty" id="repaymentEmpty" style="display:none;">No schedule loaded yet.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let API = document.getElementById('apiBase').value.replace(/\/$/, '');
+  document.getElementById('apiBase').addEventListener('change', e => {
+    API = e.target.value.replace(/\/$/, '');
+    checkConnection();
+  });
+
+  // ---------- nav ----------
+  document.querySelectorAll('nav button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('main section').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.section).classList.add('active');
+      if (btn.dataset.section === 'overview') refreshOverview();
+      if (btn.dataset.section === 'customers') loadCustomers();
+      if (btn.dataset.section === 'loans') loadLoans();
+    });
+  });
+
+  // ---------- helpers ----------
+  function toast(msg, kind) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (kind ? ' ' + kind : '');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 3800);
+  }
+
+  async function api(path, options) {
+    const res = await fetch(API + path, Object.assign({
+      headers: { 'Content-Type': 'application/json' }
+    }, options));
+    let body = null;
+    try { body = await res.json(); } catch (e) {}
+    if (!res.ok) {
+      const msg = (body && (body.message || body.error)) || ('HTTP ' + res.status);
+      throw new Error(msg);
+    }
+    return body;
+  }
+
+  async function checkConnection() {
+    const dot = document.getElementById('connDot');
+    const text = document.getElementById('connText');
+    try {
+      // Using a regular API endpoint instead of /actuator/health: Spring Boot Actuator
+      // routes its endpoints through a separate CORS mechanism from the rest of the
+      // app, independent of CorsConfig, which made this check unreliable in the
+      // browser even when every real API endpoint was working correctly.
+      await api('/api/v1/customers?size=1');
+      dot.className = 'dot up';
+      text.textContent = 'connected';
+      refreshOverview();
+    } catch (e) {
+      dot.className = 'dot down';
+      text.textContent = 'not reachable';
+    }
+  }
+
+  // ---------- overview ----------
+  async function refreshOverview() {
+    try {
+      const customers = await api('/api/v1/customers?size=1');
+      document.getElementById('statCustomers').textContent = customers.totalElements ?? '0';
+    } catch (e) {}
+    try {
+      const loans = await api('/api/v1/loan-applications?size=200');
+      const content = loans.content || [];
+      document.getElementById('statLoans').textContent = loans.totalElements ?? content.length;
+      document.getElementById('statApproved').textContent = content.filter(l => l.status === 'APPROVED').length;
+      document.getElementById('statPending').textContent = content.filter(l => l.status === 'PENDING' || l.status === 'UNDER_REVIEW').length;
+    } catch (e) {}
+  }
+
+  // ---------- customers ----------
+  async function createCustomer() {
+    const body = {
+      fullName: val('cFullName'),
+      email: val('cEmail'),
+      phone: val('cPhone'),
+      panNumber: val('cPan').toUpperCase(),
+      dateOfBirth: val('cDob')
+    };
+    try {
+      const created = await api('/api/v1/customers', { method: 'POST', body: JSON.stringify(body) });
+      toast('Customer #' + created.id + ' created', 'ok');
+      ['cFullName','cEmail','cPhone','cPan','cDob'].forEach(id => document.getElementById(id).value = '');
+      loadCustomers();
+    } catch (e) { toast(e.message, 'err'); }
+  }
+
+  async function loadCustomers() {
+    try {
+      const page = await api('/api/v1/customers?size=100&sort=id,desc');
+      const rows = page.content || [];
+      const tbody = document.getElementById('customerTable');
+      tbody.innerHTML = rows.map(c => `<tr>
+        <td class="num">${c.id}</td><td>${escapeHtml(c.fullName)}</td>
+        <td>${escapeHtml(c.email)}</td><td class="num">${escapeHtml(c.phone)}</td>
+        <td class="num">${escapeHtml(c.panNumber)}</td></tr>`).join('');
+      document.getElementById('customerEmpty').style.display = rows.length ? 'none' : 'block';
+    } catch (e) { toast(e.message, 'err'); }
+  }
+
+  // ---------- loans ----------
+  async function submitLoan() {
+    const body = {
+      customerId: Number(val('lCustomerId')),
+      loanType: val('lLoanType'),
+      principalAmount: Number(val('lPrincipal')),
+      interestRatePercent: Number(val('lRate')),
+      tenureMonths: Number(val('lTenure'))
+    };
+    try {
+      const created = await api('/api/v1/loan-applications', { method: 'POST', body: JSON.stringify(body) });
+      toast('Loan #' + created.id + ' submitted — watching for the credit-check decision…', 'ok');
+      loadLoans();
+      watchPipeline(created.id);
+    } catch (e) { toast(e.message, 'err'); }
+  }
+
+  async function loadLoans() {
+    const status = document.getElementById('statusFilter').value;
+    const qs = status ? ('&status=' + status) : '';
+    try {
+      const page = await api('/api/v1/loan-applications?size=100&sort=appliedAt,desc' + qs);
+      const rows = page.content || [];
+      const tbody = document.getElementById('loanTable');
+      tbody.innerHTML = rows.map(l => `<tr class="clickable" onclick="jumpToRepayments(${l.id})">
+        <td class="num">${l.id}</td>
+        <td>${escapeHtml(l.customerName || l.customerId)}</td>
+        <td>${formatLoanType(l.loanType)}</td>
+        <td class="num">₹${Number(l.principalAmount).toLocaleString('en-IN')}</td>
+        <td class="num">${l.interestRatePercent}%</td>
+        <td class="num">${l.tenureMonths}mo</td>
+        <td><span class="badge ${l.status}">${formatStatus(l.status)}</span></td>
+        <td class="num">${formatDate(l.appliedAt)}</td>
+      </tr>`).join('');
+      document.getElementById('loanEmpty').style.display = rows.length ? 'none' : 'block';
+    } catch (e) { toast(e.message, 'err'); }
+  }
+
+  function jumpToRepayments(id) {
+    document.querySelector('nav button[data-section="repayments"]').click();
+    document.getElementById('rLoanId').value = id;
+    loadRepayments();
+  }
+
+  // ---------- live pipeline watcher ----------
+  async function watchPipeline(loanId) {
+    setStage('stage1', 'done');
+    setStage('stage2', 'live');
+    let attempts = 0;
+    const maxAttempts = 20;
+    const poll = async () => {
+      attempts++;
+      try {
+        const loan = await api('/api/v1/loan-applications/' + loanId);
+        if (loan.status === 'PENDING') {
+          setStage('stage2', 'done'); setStage('stage3', 'live');
+        } else {
+          setStage('stage2', 'done'); setStage('stage3', 'done'); setStage('stage4', 'done');
+          toast('Loan #' + loanId + ' decided: ' + loan.status, loan.status === 'APPROVED' ? 'ok' : 'err');
+          loadLoans();
+          setTimeout(resetPipeline, 4000);
+          return;
+        }
+      } catch (e) { /* keep trying */ }
+      if (attempts < maxAttempts) setTimeout(poll, 1200);
+      else resetPipeline();
+    };
+    poll();
+  }
+  function setStage(id, cls) {
+    const el = document.getElementById(id);
+    el.className = 'p-stage' + (cls ? ' ' + cls : '');
+  }
+  function resetPipeline() {
+    ['stage1','stage2','stage3','stage4'].forEach(id => setStage(id, ''));
+  }
+
+  // ---------- repayments ----------
+  async function loadRepayments() {
+    const id = val('rLoanId');
+    if (!id) return;
+    try {
+      const schedule = await api('/api/v1/loan-applications/' + id + '/repayments');
+      const tbody = document.getElementById('repaymentTable');
+      tbody.innerHTML = schedule.map(r => `<tr>
+        <td class="num">${r.installmentNumber}</td>
+        <td class="num">${r.dueDate}</td>
+        <td class="num">₹${Number(r.emiAmount).toLocaleString('en-IN')}</td>
+        <td class="num">₹${Number(r.principalComponent).toLocaleString('en-IN')}</td>
+        <td class="num">₹${Number(r.interestComponent).toLocaleString('en-IN')}</td>
+        <td>${r.paid ? '<span class="badge APPROVED">Paid</span>' : '<span class="badge PENDING">Due</span>'}</td>
+      </tr>`).join('');
+      document.getElementById('repaymentEmpty').style.display = schedule.length ? 'none' : 'block';
+    } catch (e) { toast(e.message, 'err'); }
+  }
+
+  // ---------- utils ----------
+  function val(id) { return document.getElementById(id).value.trim(); }
+  function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function formatStatus(s) { return String(s || '').replace('_', ' '); }
+  function formatLoanType(t) { return String(t || '').replace('_', ' ').replace(/\w\S*/g, w => w.charAt(0) + w.substr(1).toLowerCase()); }
+  function formatDate(iso) { if (!iso) return '—'; return iso.slice(0,16).replace('T',' '); }
+
+  // ---------- boot ----------
+  checkConnection();
+  setInterval(checkConnection, 15000);
+</script>
+</body>
+</html>
